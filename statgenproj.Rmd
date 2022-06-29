@@ -1,0 +1,116 @@
+---
+title: "statgen_sibs"
+author: "Jayden Chrzanowski"
+date: '2022-06-29'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(arsenal)
+```
+```{r}
+# reading phenotype data
+phenotype <- read.csv("T2D-GENES_P1_Hispanic_phenotypes.txt", sep="")
+head(phenotype)
+```
+```{r}
+# reading genetic data
+pcs <- read.csv("all_chr_eigensoft_PCs.csv")
+head(pcs)
+```
+```{r}
+phenotype <- subset(phenotype, select = -SMOKE) #removing smoke variable - all NAs
+phenotype$HTN <- ifelse(phenotype$SBP>130, 1, ifelse(is.null(phenotype$BPMED), 1, ifelse(phenotype$BPMED==1, 1, 0))) #adding HTN variable
+phenotype <- rename(phenotype, "ID" = "IID") # renaming IID in phenotype data to ID to merge with genetic data
+phenotype <- merge(phenotype, pcs, by="ID") # merging genetic data by id var
+```
+
+```{r}
+head(phenotype)
+colnames(phenotype)
+```
+```{r}
+# Controls for summary stat tables
+my_controls <- tableby.control(
+  test = T,
+  total = T,
+  numeric.test="kwt", cat.test="chisq", #Specify Kruskal-Wallis test for numeric vars and chi square for categorical vars
+  numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss2"), #Display mean, sd, median, q1 and q3, range, and missing values
+  cat.stats = c("countpct", "Nmiss2"),
+  stats.labels=list(
+    meansd = "Mean (SD)",
+    medianq1q3 = "Median (Q1, Q3)",
+    range = "Min - Max",
+    Nmiss2 = "Missing"
+  )
+)
+# Creating labels for variables in table
+my_labels <- list(
+  DBP = "Diastolic Blood Pressure",
+  SBP = "Systolic Blood Pressure",
+  AGE = "Age",
+  SEX = "Sex",
+  BPMED = "Blood Pressure Medication Status",
+  HTN = "Hypertension Status"
+)
+
+# Creating a list of the PC variables
+pc_list <- paste("PC", 1:10, sep="")
+htn_fmla <- as.formula(paste("HTN ~ + DBP + SBP + AGE +", paste(pc_list, collapse= "+")))
+sex_fmla <- as.formula(paste("SEX ~ + DBP + SBP + AGE +", paste(pc_list, collapse= "+")))
+bpmed_fmla <- as.formula(paste("BPMED ~ + DBP + SBP + AGE +", paste(pc_list, collapse= "+")))
+
+htn_table <- tableby(htn_fmla, data = phenotype, control=my_controls) 
+summary(htn_table, labelTranslations = my_labels, title = "Summary Statistics for Phenotypes By Hypertension")
+
+sex_table <- tableby(sex_fmla, data = phenotype, control=my_controls) 
+summary(sex_table, labelTranslations = my_labels, title = "Summary Statistics for Phenotype Data By Sex")
+
+bpmed_table <- tableby(bpmed_fmla, data = phenotype, control=my_controls) 
+summary(bpmed_table, labelTranslations = my_labels, title = "Summary Statistics for Phenotype Data By Blood Pressure Medication Status")
+
+gen_table <- tableby(~DBP + SBP + AGE, data=phenotype, control=my_controls)
+summary(gen_table, labelTranslations = my_labels, title="Summary Statistics for Phenotype Data")
+
+summary(freqlist(~SEX, data=phenotype), title="Frequency Table By Sex for Phenotype Data", labelTranslations = my_labels)
+summary(freqlist(~BPMED, data=phenotype), title="Frequency Table By Blood Pressure Medication Status for Phenotype Data", labelTranslations = my_labels)
+summary(freqlist(~HTN, data=phenotype), title="Frequency Table By Hypertension Status for Phenotype Data", labelTranslations = my_labels)
+
+```
+Hypertension has significant associations with DBP, SBP, AGE, PC1, PC2.
+
+Sex has significant associations with DBP, SBP, AGE, and PC2
+
+Blood Pressure Medication Status has significant assocciations with SBP, AGE, and PC4 (most significant PC yet). It makes sense for it not to have an association with DBP since high blood pressure is due to high SBP. It is interesting to note that hypertension does have a significant association with DBP. It appears that those with hypertension have a higher likelihood of having a high DBP.
+
+There were only 3 signficant PCs in this analysis - PC1, PC2, and PC4.
+
+There are many more missing BPMED instances (1536) compared to missing SBP and DBP (92). This does not impact hypertension as it was coded to still code depending on SBP if BPMED was null.
+
+```{r}
+boxplot(phenotype$SBP~phenotype$BPMED)
+boxplot(phenotype$AGE~phenotype$BPMED)
+boxplot(phenotype$PC4~phenotype$BPMED)
+
+
+bpmed_fmla <- as.formula(paste("BPMED ~ SBP + AGE + SEX + BPMED + HTN + + ", paste(pc_list, collapse="+")))
+bpmed_model <- glm(bpmed_fmla,family=binomial(link='logit'), data=phenotype)
+#summary(bpmed_model)
+
+bpmed_model_reduc <- glm(BPMED~SBP+AGE+HTN+PC4, family=binomial(link='logit'), data=phenotype)
+summary(bpmed_model_reduc)
+
+anova(bpmed_model_reduc, bpmed_model, test="Chisq")
+plot(bpmed_model_reduc)
+exp(coef(bpmed_model_reduc))
+deviance(bpmed_model_reduc)/df.residual(bpmed_model_reduc) 
+```
+
+
+
