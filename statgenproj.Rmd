@@ -3,8 +3,9 @@ title: "statgen_sibs"
 author: "Jayden Chrzanowski"
 date: '2022-06-29'
 output:
-  pdf_document: default
+  word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -107,10 +108,15 @@ bpmed_model_reduc <- glm(BPMED~SBP+AGE+HTN+PC4, family=binomial(link='logit'), d
 summary(bpmed_model_reduc)
 
 anova(bpmed_model_reduc, bpmed_model, test="Chisq")
-plot(bpmed_model_reduc)
 exp(coef(bpmed_model_reduc))
+
+plot(bpmed_model_reduc) # Little shaky on assumptions of linearity, deviation from normality present, potential influential outliers
 deviance(bpmed_model_reduc)/df.residual(bpmed_model_reduc) 
 ```
+The reduced model contains the variables SBP, AGE, HTN, and PC4 and appears to be a better fit model than the model with all variables as seen by the p-value of .8925 in the analysis of deviance table.
+Each unit increase in systolic blood pressure increases the odds of being on blood pressure medication by 1.02 (2%).
+Each year increase in age increases the odds of being on blood pressure medication by 1.05 (5%). 
+Having hypertension increases the odds of being on blood pressure medication by 2.71 (171%)
 
-
+It is important to note that logistic regression assumptions may not be met such as homoskedasticity as seen in the scale-location plot and normality as seen in the normal q-q plot. There may also be influential outliers present as seen in the residuals vs leverage plot with 2 points below Cook's distance. It is likely that the influential outliers may come from the SBP variable based on the boxplots.
 
