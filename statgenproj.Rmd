@@ -3,8 +3,8 @@ title: "statgen_sibs"
 author: "Jayden Chrzanowski"
 date: '2022-06-29'
 output:
-  word_document: default
   html_document: default
+  word_document: default
   pdf_document: default
 ---
 
@@ -36,7 +36,7 @@ phenotype <- merge(phenotype, pcs, by="ID") # merging genetic data by id var
 head(phenotype)
 colnames(phenotype)
 ```
-```{r}
+```{r, results='asis'}
 # Controls for summary stat tables
 my_controls <- tableby.control(
   test = T,
