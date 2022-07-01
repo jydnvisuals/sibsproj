@@ -3,9 +3,9 @@ title: "statgen_sibs"
 author: "Jayden Chrzanowski"
 date: '2022-06-29'
 output:
-  html_document: default
-  word_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -118,5 +118,4 @@ Each unit increase in systolic blood pressure increases the odds of being on blo
 Each year increase in age increases the odds of being on blood pressure medication by 1.05 (5%). 
 Having hypertension increases the odds of being on blood pressure medication by 2.71 (171%)
 
-It is important to note that logistic regression assumptions may not be met such as homoskedasticity as seen in the scale-location plot and normality as seen in the normal q-q plot. There may also be influential outliers present as seen in the residuals vs leverage plot with 2 points below Cook's distance. It is likely that the influential outliers may come from the SBP variable based on the boxplots.
-
+It is important to note that logistic regression assumptions may not be met such as homoskedasticity as seen in the scale-location plot and normality as seen in the normal q-q plot. There are no influential outliers present as seen in the residuals vs leverage plot.
