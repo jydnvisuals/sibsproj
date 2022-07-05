@@ -25,6 +25,7 @@ head(phenotype)
 pcs <- read.csv("all_chr_eigensoft_PCs.csv")
 head(pcs)
 ```
+
 ```{r}
 phenotype <- subset(phenotype, select = -SMOKE) #removing smoke variable - all NAs
 phenotype$HTN <- ifelse(phenotype$SBP>130, 1, ifelse(is.null(phenotype$BPMED), 1, ifelse(phenotype$BPMED==1, 1, 0))) #adding HTN variable
@@ -82,7 +83,6 @@ summary(gen_table, labelTranslations = my_labels, title="Summary Statistics for 
 summary(freqlist(~SEX, data=phenotype), title="Frequency Table By Sex for Phenotype Data", labelTranslations = my_labels)
 summary(freqlist(~BPMED, data=phenotype), title="Frequency Table By Blood Pressure Medication Status for Phenotype Data", labelTranslations = my_labels)
 summary(freqlist(~HTN, data=phenotype), title="Frequency Table By Hypertension Status for Phenotype Data", labelTranslations = my_labels)
-
 ```
 Hypertension has significant associations with DBP, SBP, AGE, PC1, PC2.
 
@@ -119,3 +119,21 @@ Each year increase in age increases the odds of being on blood pressure medicati
 Having hypertension increases the odds of being on blood pressure medication by 2.71 (171%)
 
 It is important to note that logistic regression assumptions may not be met such as homoskedasticity as seen in the scale-location plot and normality as seen in the normal q-q plot. There are no influential outliers present as seen in the residuals vs leverage plot.
+```{r}
+#Plotting significant PCs and dichotomous outcomes
+plot(phenotype$PC1,col=factor(phenotype$HTN), main="PC1 grouped by hypertension")
+legend("bottomright", legend=levels(factor(phenotype$HTN)), pch=19, col=factor(levels(factor(phenotype$HTN))))
+
+plot(phenotype$PC2, col=factor(phenotype$HTN), main="PC2 grouped by hypertension")
+legend("bottomright", legend=levels(factor(phenotype$HTN)), pch=19, col=factor(levels(factor(phenotype$HTN))))
+
+plot(phenotype$PC4, col=factor(phenotype$BPMED), main="PC4 grouped by BPMED")
+legend("bottomright", legend=levels(factor(phenotype$BPMED)), pch=19, col=factor(levels(factor(phenotype$BPMED))))
+
+plot(phenotype$PC2, col=factor(phenotype$SEX), main="PC2 grouped by sex")
+legend("bottomright", legend=levels(factor(phenotype$SEX)), pch=19, col=factor(levels(factor(phenotype$SEX))))
+```
+
+
+
+
