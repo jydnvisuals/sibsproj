@@ -125,13 +125,13 @@ plot(phenotype$PC1,col=factor(phenotype$HTN), main="PC1 grouped by hypertension"
 legend("bottomright", legend=levels(factor(phenotype$HTN)), pch=19, col=factor(levels(factor(phenotype$HTN))))
 
 plot(phenotype$PC2, col=factor(phenotype$HTN), main="PC2 grouped by hypertension")
-legend("bottomright", legend=levels(factor(phenotype$HTN)), pch=19, col=factor(levels(factor(phenotype$HTN))))
+legend("topleft", legend=levels(factor(phenotype$HTN)), pch=19, col=factor(levels(factor(phenotype$HTN))))
 
 plot(phenotype$PC4, col=factor(phenotype$BPMED), main="PC4 grouped by BPMED")
 legend("bottomright", legend=levels(factor(phenotype$BPMED)), pch=19, col=factor(levels(factor(phenotype$BPMED))))
 
 plot(phenotype$PC2, col=factor(phenotype$SEX), main="PC2 grouped by sex")
-legend("bottomright", legend=levels(factor(phenotype$SEX)), pch=19, col=factor(levels(factor(phenotype$SEX))))
+legend("topleft", legend=levels(factor(phenotype$SEX)), pch=19, col=factor(levels(factor(phenotype$SEX))))
 ```
 
 
